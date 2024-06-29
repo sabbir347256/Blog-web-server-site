@@ -4,10 +4,7 @@ const cors = require('cors');
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
-const mailgun = new Mailgun(formData);
-const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY || 'key-yourkeyhere' });
+
 
 app.use(cors());
 app.use(express.json());
@@ -32,10 +29,21 @@ async function run() {
 
     const allBlogPost = client.db('HimusLab').collection('allBlogPost');
     const contactInformation = client.db('HimusLab').collection('contactInformation');
+    const registerUser = client.db('HimusLab').collection('registerUser');
 
 
     app.get('/allblog', async (req, res) => {
       const cursor = allBlogPost.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+    app.get('/contactInformation', async (req, res) => {
+      const cursor = contactInformation.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+    app.get('/registerUser', async (req, res) => {
+      const cursor = registerUser.find();
       const result = await cursor.toArray();
       res.send(result);
     })
@@ -46,21 +54,15 @@ async function run() {
       const result = await allBlogPost.insertOne(user);
       res.send(result);
     })
+    app.post('/registerUser', async (req, res) => {
+      const user = req.body;
+      const result = await registerUser.insertOne(user);
+      res.send(result);
+    })
 
     app.post('/contactInformation', async (req, res) => {
       const user = req.body;
       const result = await contactInformation.insertOne(user);
-
-      mg.messages.create(process.env.MAIL_SENDING_DOMAIN, {
-        from: "Excited User <mailgun@sandboxc615646f360149cc935e13ff19483c84.mailgun.org>",
-        to: ["bewyaris@gmail.com"],
-        subject: "Hello",
-        text: "Testing some Mailgun awesomeness!",
-        html: "<h1>Testing some Mailgun awesomeness!</h1>"
-      })
-        .then(msg => console.log(msg)) // logs response data
-        .catch(err => console.log(err)); // logs any error
-
       res.send(result);
     })
 
