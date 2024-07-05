@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
@@ -8,7 +8,8 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 
 app.use(cors({
-  origin : [
+  origin: [
+    'http://localhost:5173',
     'https://blog-site-web-page-project.vercel.app',
     'https://himu-s-lab.web.app',
     'https://himu-s-lab.firebaseapp.com'
@@ -80,6 +81,19 @@ async function run() {
       res.send(result);
     })
 
+
+    app.delete('/deletePost/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await allBlogPost.deleteOne(query);
+      res.send(result);
+    })
+    app.delete('/deleteComment/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await contactInformation.deleteOne(query);
+      res.send(result);
+    })
 
 
 
